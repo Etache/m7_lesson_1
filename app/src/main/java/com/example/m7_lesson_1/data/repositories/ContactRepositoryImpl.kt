@@ -14,6 +14,8 @@ class ContactRepositoryImpl @Inject constructor(
     private val contactDao: ContactDao
 ) : ContactRepository {
 
+    private lateinit var contact: Contact
+
     override fun getContacts(): Flow<Resource<List<ContactEntity>>> {
         return flow {
             emit(Resource.Loading())
@@ -26,33 +28,33 @@ class ContactRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun createContact(contact: Contact): Flow<Resource<Unit>> {
+    override fun createContact(contactEntity: ContactEntity): Flow<Resource<Unit>> {
         return flow {
             emit(Resource.Loading())
             try {
                 Resource.Success(contactDao.createContact(contact))
             } catch (e: Exception) {
-                Resource.Error(e.localizedMessage)
+                e.localizedMessage?.let { Resource.Error(it) }
             }
         }
     }
 
-    override fun updateContact(contact: Contact): Flow<Resource<Unit>> {
-        return flow {
-            emit(Resource.Loading())
-            try {
-                Resource.Success(contactDao.updateContact(contact))
-            } catch (e: Exception) {
-                Resource.Error(e.localizedMessage)
-            }
-        }
-    }
-
-    override fun deleteContact(contact: Contact): Flow<Resource<Unit>> {
+    override fun deleteContact(contactEntity: ContactEntity): Flow<Resource<Unit>> {
         return flow {
             emit(Resource.Loading())
             try {
                 Resource.Success(contactDao.deleteContact(contact))
+            } catch (e: Exception) {
+                e.localizedMessage?.let { Resource.Error(it) }
+            }
+        }
+    }
+
+    override fun updateContact(contactEntity: ContactEntity): Flow<Resource<Unit>> {
+        return flow {
+            emit(Resource.Loading())
+            try {
+                Resource.Success(contactDao.updateContact(contact))
             } catch (e: Exception) {
                 Resource.Error(e.localizedMessage)
             }
