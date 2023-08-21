@@ -1,18 +1,15 @@
 package com.example.m7_lesson_1.presentation
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.m7_lesson_1.domain.models.ContactEntity
 import com.example.m7_lesson_1.domain.usecases.CreateContactUseCase
 import com.example.m7_lesson_1.domain.usecases.DeleteContactUseCase
 import com.example.m7_lesson_1.domain.usecases.GetContactUseCase
 import com.example.m7_lesson_1.domain.usecases.UpdateContactUseCase
-import com.example.m7_lesson_1.domain.utils.Resource
+import com.example.m7_lesson_1.presentation.base.BaseViewModel
 import com.example.m7_lesson_1.presentation.utils.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,99 +18,35 @@ class ContactViewModel @Inject constructor(
     private val createContactUseCase: CreateContactUseCase,
     private val updateContactUseCase: UpdateContactUseCase,
     private val deleteContactUseCase: DeleteContactUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _getContactMutableStateFlow = MutableStateFlow<UIState<List<ContactEntity>>>(UIState.Empty())
     val getAllContacts: StateFlow<UIState<List<ContactEntity>>> = _getContactMutableStateFlow
 
-    private val _createContactMutableStateFlow = MutableStateFlow<UIState<ContactEntity>>(UIState.Empty())
-    val createContact: StateFlow<UIState<ContactEntity>> = _createContactMutableStateFlow
+    private val _createContactMutableStateFlow = MutableStateFlow<UIState<Unit>>(UIState.Empty())
+    val createContact: StateFlow<UIState<Unit>> = _createContactMutableStateFlow
 
-    private val _updateContactMutableStateFlow = MutableStateFlow<UIState<ContactEntity>>(UIState.Empty())
-    val updateContact: StateFlow<UIState<ContactEntity>> = _updateContactMutableStateFlow
+    private val _updateContactMutableStateFlow = MutableStateFlow<UIState<Unit>>(UIState.Empty())
+    val updateContact: StateFlow<UIState<Unit>> = _updateContactMutableStateFlow
 
-    private val _deleteContactMutableStateFlow = MutableStateFlow<UIState<ContactEntity>>(UIState.Empty())
-    val deleteContact: StateFlow<UIState<ContactEntity>> = _deleteContactMutableStateFlow
+    private val _deleteContactMutableStateFlow = MutableStateFlow<UIState<Unit>>(UIState.Empty())
+    val deleteContact: StateFlow<UIState<Unit>> = _deleteContactMutableStateFlow
 
 
     fun getAllContacts() {
-        viewModelScope.launch {
-            getContactUseCase.getContacts().collect() {
-                when (it) {
-                    is Resource.Error -> {
-                        _getContactMutableStateFlow.value = UIState.Error(it.message ?: "Some error")
-                    }
-                    is Resource.Loading -> {
-                        _getContactMutableStateFlow.value = UIState.Loading()
-                    }
-                    is Resource.Success -> {
-                        if (it.data != null) {
-                            _getContactMutableStateFlow.value = UIState.Success(it.data)
-                        }
-                    }
-                }
-            }
-        }
+        getContactUseCase.getContacts().collectData(_getContactMutableStateFlow)
     }
 
     fun createContacts(contactEntity: ContactEntity) {
-        viewModelScope.launch {
-            createContactUseCase.createContact(contactEntity).collect() {
-                when (it) {
-                    is Resource.Error -> {
-                        _getContactMutableStateFlow.value = UIState.Error(it.message ?: "Create error")
-                    }
-                    is Resource.Loading -> {
-                        _getContactMutableStateFlow.value = UIState.Loading()
-                    }
-                    is Resource.Success -> {
-                        if (it.data != null) {
-                            _getContactMutableStateFlow.value = UIState.Success(it.data)
-                        }
-                    }
-                }
-            }
-        }
+        createContactUseCase.createContact(contactEntity).collectData(_createContactMutableStateFlow)
     }
 
     fun updateContact(contactEntity: ContactEntity) {
-        viewModelScope.launch {
-            updateContactUseCase.updateContact(contactEntity).collect() {
-                when (it) {
-                    is Resource.Error -> {
-                        _updateContactMutableStateFlow.value = UIState.Error(it.message ?: "Update error")
-                    }
-                    is Resource.Loading -> {
-                        _updateContactMutableStateFlow.value = UIState.Loading()
-                    }
-                    is Resource.Success -> {
-                        if (it.data != null) {
-                            _updateContactMutableStateFlow.value = UIState.Success(it.data)
-                        }
-                    }
-                }
-            }
-        }
+        updateContactUseCase.updateContact(contactEntity).collectData(_updateContactMutableStateFlow)
     }
 
     fun deleteContact(contactEntity: ContactEntity) {
-        viewModelScope.launch {
-            deleteContactUseCase.deleteContact(contactEntity).collect() {
-                when (it) {
-                    is Resource.Error -> {
-                        _deleteContactMutableStateFlow.value = UIState.Error(it.message ?: "Delete error")
-                    }
-                    is Resource.Loading -> {
-                        _deleteContactMutableStateFlow.value = UIState.Loading()
-                    }
-                    is Resource.Success -> {
-                        if (it.data != null) {
-                            _deleteContactMutableStateFlow.value = UIState.Success(it.data)
-                        }
-                    }
-                }
-            }
-        }
+        deleteContactUseCase.deleteContact(contactEntity).collectData(_deleteContactMutableStateFlow)
     }
 
 }
