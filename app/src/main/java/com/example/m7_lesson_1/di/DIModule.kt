@@ -3,9 +3,9 @@ package com.example.m7_lesson_1.di
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.m7_lesson_1.data.database.ContactDatabase
-import com.example.m7_lesson_1.data.database.dao.ContactDao
-import com.example.m7_lesson_1.data.repositories.ContactRepositoryImpl
+import com.example.m7_lesson_1.database.ContactDatabase
+import com.example.m7_lesson_1.database.dao.ContactDao
+import com.example.m7_lesson_1.repositories.ContactRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,3 +30,4 @@ object DIModule {
     fun provideContactRepository(contactDao: ContactDao) =
         ContactRepositoryImpl(contactDao)
 }
+
